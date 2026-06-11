@@ -423,11 +423,35 @@ cv.imshow('Canny Edge Detection', canny)
 #       cv.THRESH_TRUNC       -> pixel > thresh ? thresh : pixel    (clip/cap)
 #       cv.THRESH_TOZERO      -> pixel > thresh ? pixel : 0
 #       cv.THRESH_TOZERO_INV  -> pixel > thresh ? 0 : pixel
+#
+#   WORKED EXAMPLE -- thresh=150, maxval=255, type=THRESH_BINARY:
+#       Every pixel is checked ONE AT A TIME against `thresh`:
+#           input pixel : 10    90    150   151   200   255
+#           is it > 150?: No    No    No    Yes   Yes   Yes
+#           output      : 0     0     0     255   255   255
+#       So `dst` ends up containing ONLY two values (0 or 255) -- that's
+#       why it's called "binary": each pixel is now either fully OFF
+#       (black) or fully ON (white), with nothing in between.
 #   Returns a TUPLE: (retval, dst)
 #       retval -> the threshold value that was actually used
 #       dst    -> the resulting binary image
 ret, thresh = cv.threshold(gray, 150, 255, cv.THRESH_BINARY)
 cv.imshow('Threshold (Binary)', thresh)
+
+# --- Note: OTSU (6th type) + adaptive thresholding ---
+# cv.THRESH_OTSU is a 6th type, OR'd onto one of the 5 above -- it AUTO-picks
+# `thresh` for you (good when lighting is fairly even). `thresh` arg is
+# ignored when OTSU is used, so pass 0:
+#~ cv.threshold(gray, 0, 255, cv.THRESH_BINARY + cv.THRESH_OTSU)
+#
+#~ cv.adaptiveThreshold(src, maxval, adaptiveMethod, thresholdType, blockSize, C)
+#   No single global `thresh` -- instead computes a LOCAL threshold per
+#   neighborhood, which handles UNEVEN lighting / shadows much better.
+#       adaptiveMethod : cv.ADAPTIVE_THRESH_MEAN_C or cv.ADAPTIVE_THRESH_GAUSSIAN_C
+#       blockSize      : size of each neighborhood (odd number, e.g. 11)
+#       C              : constant subtracted from the computed mean (fine-tune)
+#   adaptive = cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C,
+#                                    cv.THRESH_BINARY, 11, 3)
 
 # --- Step 3: Dilate / Erode (sharpen up the Canny edges) ---
 #~ cv.dilate(src, kernel, iterations)
