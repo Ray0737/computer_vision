@@ -1,0 +1,48 @@
+import cv2
+
+def main():
+    # 1. Initialize the webcam (0 is usually the default built-in camera)
+    cap = cv2.VideoCapture(0)
+    
+    if not cap.isOpened():
+        print("Error: Could not open webcam.")
+        return
+
+    # 2. Initialize the ORB detector (handles feature detection)
+    # We limit it to 500 features to keep it running fast in real-time
+    orb = cv2.ORB_create(nfeatures=500)
+
+    print("Press 'q' to quit the program.")
+
+    while True:
+        # Capture frame-by-frame
+        ret, frame = cap.read()
+        if not ret:
+            print("Error: Failed to grab frame.")
+            break
+
+        # 3. Convert frame to grayscale (CV algorithms work better/faster in gray)
+        gray = cv2.cvtColor(frame, cv2.COLOR_BGR2GRAY)
+
+        # 4. Find the keypoints (features) in the image
+        # keypoints = positions (X,Y) of unique points
+        # descriptors = the mathematical "fingerprint" of what that point looks like
+        keypoints, descriptors = orb.detectAndCompute(gray, None)
+
+        # 5. Draw the detected points on top of the original color frame
+        # It will draw tiny green circles with random orientation lines
+        output_frame = cv2.drawKeypoints(frame, keypoints, None, color=(0, 255, 0), flags=0)
+
+        # Display the resulting frame
+        cv2.imshow('Visual SLAM Front-End: Feature Tracking', output_frame)
+
+        # Break the loop if 'q' is pressed
+        if cv2.waitKey(1) & 0xFF == ord('q'):
+            break
+
+    # Clean up and close windows when done
+    cap.release()
+    cv2.destroyAllWindows()
+
+if __name__ == "__main__":
+    main()

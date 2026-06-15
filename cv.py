@@ -266,3 +266,25 @@ cv.imshow("contours drawn",blank)
 
 cv.waitKey(0) # press 0 to destroy window
 cv.destroyAllWindows()
+
+#--------------------------------------------------Color spaces--------------------------------------------------#
+
+# BGR -> Grayscale
+gray = cv.cvtColor(img,cv.COLOR_BGR2GRAY)
+cv.imshow("gray",gray)
+
+# BGR -> HSV
+hsv = cv.cvtColor(img,cv.COLOR_BGR2HSV)
+cv.imshow("hsv",hsv)
+
+# BGR -> LAB
+lab = cv.cvtColor(img,cv.COLOR_BGR2LAB)
+cv.imshow("lab",lab)
+
+# BGR -> RGB
+rgb = cv.cvtColor(img,cv.COLOR_BGR2RGB)
+cv.imshow("rgb",rgb)
+
+plt.imshow(rgb) # use plt to show rgb img because cv.imshow will show in bgr
+plt.show()
+
