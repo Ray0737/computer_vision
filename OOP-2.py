@@ -14,14 +14,15 @@ in video, to move on), or copy one block into your own script.
 
 from OOP import (
     SAMPLES,
-    load, save, show, wait, destroy, plot,
+    load, save, show, wait, destroy, plot, set_mouse,
     video, set_res, play,
     rescale, resize, scale_matrix,
     crop, translate, rotate, rotate90, flip,
     gray, hsv, lab, rgb, convert,
     split, merge, channel,
     blank, blank_like, rectangle, circle, line, text,
-    blur, canny, threshold, threshold_otsu, adaptive,
+    blur, canny, sobel_x, sobel_y, sobel, laplacian,
+    threshold, threshold_otsu, adaptive,
     dilate, erode, find_contours, draw_contours,
     bitwise_and, bitwise_or, bitwise_xor, bitwise_not,
 )
@@ -150,7 +151,37 @@ destroy()
 
 
 # ============================================================================
-# 11. Live video pipeline -- run canny on every frame ('d' to quit)
+# 11. Gradient edge detection -- Sobel & Laplacian
+# ============================================================================
+g = gray(load(SAMPLES.img))
+show(sobel_x(g), '11a. Sobel X (vertical edges)')
+show(sobel_y(g), '11b. Sobel Y (horizontal edges)')
+show(sobel(g), '11c. Sobel combined')
+show(laplacian(g), '11d. Laplacian')
+wait()
+destroy()
+
+
+# ============================================================================
+# 12. Mouse click events -- left-click to drop a dot
+# ============================================================================
+canvas = load(SAMPLES.img)
+WIN = '12. Click to draw (left-click)'
+
+def on_mouse(event, x, y, flags, param):
+    if event == cv.EVENT_LBUTTONDOWN:          # left button pressed
+        circle(canvas, (x, y), radius=6, color=(0, 255, 0), thickness=-1)
+        show(canvas, WIN)
+        print(f'click at ({x}, {y})')
+
+show(canvas, WIN)
+set_mouse(WIN, on_mouse)
+wait()                                          # keeps window alive for events
+destroy()
+
+
+# ============================================================================
+# 13. Live video pipeline -- run canny on every frame ('d' to quit)
 # ============================================================================
 play(SAMPLES.video, process=lambda f: canny(gray(rescale(f, 0.5))),
-     title='11. Live Canny')
+     title='13. Live Canny')

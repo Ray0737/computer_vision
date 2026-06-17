@@ -62,6 +62,13 @@ def plot(img, title='image'):               # show via matplotlib (BGR -> RGB)
 
 
 # ----------------------------------------------------------------------------
+# MOUSE EVENTS
+# ----------------------------------------------------------------------------
+def set_mouse(window, callback, param=None):    # callback(event, x, y, flags, param)
+    cv.setMouseCallback(window, callback, param)  # window must already exist (imshow first)
+
+
+# ----------------------------------------------------------------------------
 # VIDEO
 # ----------------------------------------------------------------------------
 def video(source=SAMPLES.WEBCAM):           # path for a file, 0 for webcam
@@ -218,6 +225,22 @@ def canny(img, t1=125, t2=175):             # lower = more (fainter) edges
     return cv.Canny(img, t1, t2)
 
 
+def sobel_x(img, ksize=3):                  # vertical edges (gradient along x)
+    return cv.convertScaleAbs(cv.Sobel(img, cv.CV_64F, 1, 0, ksize=ksize))
+
+
+def sobel_y(img, ksize=3):                  # horizontal edges (gradient along y)
+    return cv.convertScaleAbs(cv.Sobel(img, cv.CV_64F, 0, 1, ksize=ksize))
+
+
+def sobel(img, ksize=3):                    # combined x + y
+    return cv.bitwise_or(sobel_x(img, ksize), sobel_y(img, ksize))
+
+
+def laplacian(img, ksize=1):               # edges in all directions
+    return cv.convertScaleAbs(cv.Laplacian(img, cv.CV_64F, ksize=ksize))
+
+
 def threshold(img, thresh=150, maxval=255, type=cv.THRESH_BINARY):   # gray in
     _, out = cv.threshold(img, thresh, maxval, type)
     return out
@@ -291,6 +314,9 @@ _CHEATSHEET = """
   destroy()                   close all windows
   plot(img, title='image')     show via matplotlib (auto BGR->RGB)
 
+-- MOUSE EVENTS -----------------------------------------------------
+  set_mouse(window, callback, param=None)   callback(event,x,y,flags,param)
+
 -- VIDEO ------------------------------------------------------------
   video(source=0)              open a capture (path / 0 webcam)
   set_res(capture, w, h)       set capture resolution (webcams)
@@ -329,6 +355,8 @@ _CHEATSHEET = """
 -- VISION PIPELINE --------------------------------------------------
   blur(img, ksize=5)           odd ksize; bigger = blurrier
   canny(img, t1=125, t2=175)   lower = more edges
+  sobel_x / sobel_y / sobel(img, ksize=3)   gradient edges (x / y / both)
+  laplacian(img, ksize=1)      all-direction edges
   threshold(img, thresh=150, maxval=255, type=cv.THRESH_BINARY)
   threshold_otsu(img)          auto cutoff
   adaptive(img, block=11, c=3) per-region (uneven light)

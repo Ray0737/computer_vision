@@ -20,6 +20,8 @@ Grouping in this version:
                          image correctly with matplotlib
  10. COLOR CHANNELS -- split an image into B/G/R, view each, merge back
  11. BITWISE -- AND / OR / XOR / NOT to combine images & masks
+ 12. GRADIENT EDGES -- Sobel (x / y) and Laplacian edge detection
+ 13. MOUSE EVENTS -- setMouseCallback to react to clicks / movement
 
 HOW TO READ THIS FILE:
   - Each command has a `#~ function(...)` block explaining EVERY argument.
@@ -795,4 +797,102 @@ cv.imshow('XOR (non-overlap)', cv.bitwise_xor(rectangle, circle))   # where they
 cv.imshow('NOT (inverted)', cv.bitwise_not(rectangle))              # flipped
 
 cv.waitKey(0)
+cv.destroyAllWindows()
+
+
+# ============================================================================
+# SECTION 12: GRADIENT EDGES -- Sobel & Laplacian
+# ============================================================================
+# Canny (Section 8) is one edge detector; Sobel and Laplacian are the other
+# classic ones. They measure the GRADIENT -- how fast pixel intensity changes
+# -- which spikes at edges. Run them on a GRAYSCALE image.
+#
+# WHY CV_64F + convertScaleAbs:
+#   Going dark->light is a POSITIVE gradient, light->dark is NEGATIVE. If the
+#   output were uint8 (0-255) the negatives would be clipped to 0 and you'd
+#   lose half your edges. So compute in cv.CV_64F (signed float), then
+#   cv.convertScaleAbs() takes the ABSOLUTE value and casts back to uint8.
+#
+#~ cv.Sobel(src, ddepth, dx, dy, ksize)
+#   ddepth : output depth -- use cv.CV_64F to keep negatives (see above)
+#   dx, dy : order of the derivative per axis.
+#            dx=1, dy=0 -> gradient along X -> highlights VERTICAL edges
+#            dx=0, dy=1 -> gradient along Y -> highlights HORIZONTAL edges
+#   ksize  : kernel size (odd, e.g. 3). Bigger = thicker, smoother edges.
+#
+#~ cv.Laplacian(src, ddepth, ksize)
+#   Uses the 2nd derivative -- responds to edges in ALL directions at once
+#   (no separate x/y). One call, no dx/dy needed.
+#
+# Example:
+#   sx = cv.convertScaleAbs(cv.Sobel(gray, cv.CV_64F, 1, 0, ksize=3))  # vertical
+#   sy = cv.convertScaleAbs(cv.Sobel(gray, cv.CV_64F, 0, 1, ksize=3))  # horizontal
+#   combined = cv.bitwise_or(sx, sy)                                    # both
+#   lap = cv.convertScaleAbs(cv.Laplacian(gray, cv.CV_64F))            # all dirs
+
+img = cv.imread(IMG_PATH, 1)
+gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+
+sobel_x = cv.convertScaleAbs(cv.Sobel(gray, cv.CV_64F, 1, 0, ksize=3))   # vertical edges
+sobel_y = cv.convertScaleAbs(cv.Sobel(gray, cv.CV_64F, 0, 1, ksize=3))   # horizontal edges
+sobel_combined = cv.bitwise_or(sobel_x, sobel_y)
+laplacian = cv.convertScaleAbs(cv.Laplacian(gray, cv.CV_64F))
+
+cv.imshow('Sobel X (vertical edges)', sobel_x)
+cv.imshow('Sobel Y (horizontal edges)', sobel_y)
+cv.imshow('Sobel combined', sobel_combined)
+cv.imshow('Laplacian', laplacian)
+
+cv.waitKey(0)
+cv.destroyAllWindows()
+
+
+# ============================================================================
+# SECTION 13: MOUSE EVENTS -- react to clicks / movement
+# ============================================================================
+# cv.setMouseCallback() attaches a FUNCTION that OpenCV calls every time the
+# mouse does something over a named window (move, click, release, ...).
+#
+#~ cv.setMouseCallback(window_name, callback, param=None)
+#   window_name : the title you passed to cv.imshow() -- the window MUST
+#                 already exist before you attach the callback.
+#   callback    : your function. Its signature is FIXED -- OpenCV always calls
+#                 it with exactly these 5 args:
+#
+#       def on_mouse(event, x, y, flags, param):
+#           event : which action happened (cv.EVENT_* constant, see below)
+#           x, y  : mouse position in the window, in pixels
+#           flags : bitmask of modifier keys / buttons held (Ctrl, Shift, ...)
+#           param : the optional `param` you passed to setMouseCallback
+#       (flags and param are often unused, but must stay in the signature.)
+#
+# --- Common event constants ---
+#   cv.EVENT_MOUSEMOVE      mouse moved
+#   cv.EVENT_LBUTTONDOWN    left button pressed
+#   cv.EVENT_LBUTTONUP      left button released
+#   cv.EVENT_RBUTTONDOWN    right button pressed
+#   cv.EVENT_MBUTTONDOWN    middle button pressed
+#   cv.EVENT_LBUTTONDBLCLK  left double-click
+#
+# Example:
+#   def on_mouse(event, x, y, flags, param):
+#       if event == cv.EVENT_LBUTTONDOWN:
+#           print('clicked at', x, y)
+#   cv.imshow('win', img)                 # 1) show the window first
+#   cv.setMouseCallback('win', on_mouse)  # 2) then attach the callback
+#   cv.waitKey(0)                          # 3) waitKey keeps it alive for events
+
+canvas = cv.imread(IMG_PATH, 1)
+WINDOW = 'Click to draw'
+
+def on_mouse(event, x, y, flags, param):
+    # Left-click -> drop a green dot where you clicked, and print the coords.
+    if event == cv.EVENT_LBUTTONDOWN:
+        cv.circle(canvas, (x, y), 6, (0, 255, 0), thickness=-1)
+        cv.imshow(WINDOW, canvas)         # redraw so the new dot appears
+        print(f'click at ({x}, {y})')
+
+cv.imshow(WINDOW, canvas)                 # window must exist before the callback
+cv.setMouseCallback(WINDOW, on_mouse)
+cv.waitKey(0)                             # blocks here, dispatching mouse events
 cv.destroyAllWindows()

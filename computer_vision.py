@@ -217,3 +217,47 @@ cv.imshow('NOT (inverted)', cv.bitwise_not(rect))              # white <-> black
 
 cv.waitKey(0)
 cv.destroyAllWindows()
+
+
+# ============================================================================
+# 11. GRADIENT EDGE DETECTION -- Sobel & Laplacian
+# ============================================================================
+img = cv.imread(IMG_PATH, 1)
+gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
+
+# Sobel: gradient in one direction. Compute in CV_64F (allows negatives),
+# then convertScaleAbs() takes |value| and casts back to uint8 for display.
+sobel_x = cv.convertScaleAbs(cv.Sobel(gray, cv.CV_64F, 1, 0, ksize=3))   # vertical edges
+sobel_y = cv.convertScaleAbs(cv.Sobel(gray, cv.CV_64F, 0, 1, ksize=3))   # horizontal edges
+sobel = cv.bitwise_or(sobel_x, sobel_y)                                  # combined
+cv.imshow('Sobel X', sobel_x)
+cv.imshow('Sobel Y', sobel_y)
+cv.imshow('Sobel combined', sobel)
+
+# Laplacian: edges in all directions at once.
+laplacian = cv.convertScaleAbs(cv.Laplacian(gray, cv.CV_64F))
+cv.imshow('Laplacian', laplacian)
+
+cv.waitKey(0)
+cv.destroyAllWindows()
+
+
+# ============================================================================
+# 12. MOUSE CLICK EVENTS -- left-click to drop a dot
+# ============================================================================
+# A callback runs on every mouse action over the window. Signature is fixed:
+#   on_mouse(event, x, y, flags, param)
+# Common events: cv.EVENT_LBUTTONDOWN / _RBUTTONDOWN / _MOUSEMOVE / _LBUTTONUP
+canvas = cv.imread(IMG_PATH, 1)
+WINDOW = 'Click to draw'
+
+def on_mouse(event, x, y, flags, param):
+    if event == cv.EVENT_LBUTTONDOWN:           # left button pressed
+        cv.circle(canvas, (x, y), 6, (0, 255, 0), thickness=-1)
+        cv.imshow(WINDOW, canvas)               # redraw with the new dot
+        print(f'click at ({x}, {y})')
+
+cv.imshow(WINDOW, canvas)                        # window must exist first
+cv.setMouseCallback(WINDOW, on_mouse)            # attach the callback
+cv.waitKey(0)                                    # keeps window alive for events
+cv.destroyAllWindows()
