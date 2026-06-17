@@ -2,6 +2,7 @@ import cv2 as cv
 import numpy as np
 import random
 import matplotlib.pyplot as plt
+from sklearn.preprocessing import scale
 
 # dir: R.jpg
 
@@ -16,11 +17,24 @@ cv.destroyAllWindows
 #--------------------------------------------------Video Show--------------------------------------------------#
 
 capture = cv.VideoCapture('Code - Computer Vision\Sequence 01.mp4') # read from file dir
+capture = cv.VideoCapture(0) # read from webcam | 0 is the default webcam, if you have multiple webcams, you can use 1, 2, etc. to access them
 
-while True:
+while True: # NOT REOCMMENDED
     isTrue, frame = capture.read() # capture frame by frame
     cv.imshow('Video',frame) # show every frame
     if cv.waitKey(20) & 0xFF ==ord('d'): # if press d to destroy window
+        break
+
+while(capture.isOpened()): # check if the video is opened | SAFER 
+    ret, frame = capture.read() # ret is boolean value to check if the frame is read correctly, frame is the actual frame
+    if ret == True:
+        cv.imshow('Frame', frame)
+        key =  cv.waitKey(33)
+        if key == ord('d'): # if press d to destroy window
+             break
+        if cv.waitKey(25) & 0xFF == ord('d'): # wait key is how many sec u transition
+            break
+    else:
         break
     
 capture.release() 
@@ -30,6 +44,10 @@ cv.destroyAllWindows()
 
 
 #--------------------------------------------------Resize--------------------------------------------------#
+
+#alternative
+h, w, _ = frame.shape()
+frame_resized = cv.resize(frame, (w//2, h//2)) # resize to half the size | interpolation = method of resizing (INTER_AREA for smaller, INTER_CUBIC for larger but slower)
 
 #Scale
 def rescaleFrame(frame, scale):
@@ -43,6 +61,7 @@ cv.waitKey(0) # press 0 to destroy window
 cv.destroyAllWindows
 
 # Resize Hard coded
+resize = cv.resize(img,fx=0.5,fy=0.5,dsize=(0,0),interpolation=cv.INTER_AREA) #scle method hardcode | dsize = (0,0) means no specific size, just use fx and fy to scale | interpolation = method of resizing (INTER_AREA for smaller, INTER_CUBIC for larger but slower)
 resized = cv.resize(img,(500,500)) # resize to 500x500
 resized = cv.resize(img,(500,500), interpolation=cv.INTER_AREA)
 resized = cv.resize(img,(500,500), interpolation=cv.INTER_CUBIC)
@@ -217,6 +236,8 @@ cv.waitKey(0) # press 0 to destroy window
 cv.destroyAllWindows
 
 # Rotation
+rotated_90 = cv.rotate(cropped, cv.ROTATE_90_CLOCKWISE) #Alternative rotate 90 degree clockwise ROTATE_90_COUNTERCLOCKWISE | ROTATE_180
+
 def rotate(img, angle, rotPoint=None):
     (height,width)=img.shape[:2] # Extracitng first 2 index | height = 0, width = 1
     if rotPoint is None: # rotPoint is rotating point
@@ -229,6 +250,27 @@ rotated = rotate(img,45) # img, degree
 cv.imshow('rotated',rotated)
 cv.waitKey(0) # press 0 to destroy window
 cv.destroyAllWindows
+
+
+mat = np.float32([[0.5,0,0], #shrink img by 50% | 0.5 is the scale factor for x-axis, 0 is the shear factor for x-axis, 0 is the translation factor for x-axis | 0 is the shear factor for y-axis, 0.5 is the scale factor for y-axis, 0 is the translation factor for y-axis
+                 [0,0.5,0]])
+rotate = cv.warpAffine(img,mat,(img.shape[1],img.shape[0]))
+cv.imshow('rotated_90', rotate)
+
+mat = np.float32([[1,0,100], # move img 100 pixels to the right and 100 pixels down | 1 is the scale factor for x-axis, 0 is the shear factor for x-axis, 100 is the translation factor for x-axis | 0 is the shear factor for y-axis, 1 is the scale factor for y-axis, 100 is the translation factor for y-axis
+                 [0,1,100]]) 
+rotate = cv.warpAffine(img,mat,(img.shape[1],img.shape[0]))
+cv.imshow('rotated_90', rotate)
+
+# (R, theta) coordinate system can be use to replace xy coordinate system in rotation
+
+
+rotated_90 = cv.rotate(img, cv.ROTATE_90_CLOCKWISE) # rotate 90 degree clockwise
+cv.imshow('rotated_90', rotated_90)
+cv.waitKey(0)
+cv.destroyAllWindows
+
+
 
 
 #flipping
