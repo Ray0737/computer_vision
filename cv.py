@@ -152,6 +152,9 @@ def changeRes(width, height):
 
 blank = np.zeros((500,500),dtype='uint8') #blank canvas | 1 channel | 500x500 dimension
 cv.imshow('blank',blank)
+
+blank2 = np.full((1024,1024,3),(255,255,255),dtype='uint8') # fill the canvas with white color | 3 channel | 500x500 dimension | colors
+
 img = cv.imread('Code - Computer Vision\img.jpg',1) # after the file dir the num will be (1/0/-1)
 # 1 RGB 0 grayscale -1 original
 cv.imshow("caption",img)
@@ -166,22 +169,26 @@ cv.imshow('green',blank)
 
 # draw rectangle
 cv.rectangle(blank,(0,0),(250,250),(0,250,0),thickness=2)
-# (0,0) start coord | (250,250) Dimension | (0,250,0) Color
+# (0,0) start coord | (250,250) end cord | (0,250,0) Color | width height of the rectangle | thickness = -1 fill the rectangle with color
 cv.rectangle(blank,(0,0),(250,250),(0,250,0),thickness=cv.FILLED)
 cv.rectangle(blank,(0,0),(250,250),(0,250,0),thickness=cv-1)
 cv.rectangle(blank,(0,0),(blank.shape[1]//2,blank.shape[0]//2),(0,250,0),thickness=cv-1) # quadrant 2
 cv.imshow('rectangle',blank)
 
-# circle
+# circle cv.circle(img, center_coordinates, radius, color, thickness)
 cv.circle(blank,(250,250),(blank.shape[1]//2,blank.shape[0]//2),40,(0,250,0),thickness=-1) # 40 is the radiyus
 cv.imshow('circle',blank)
 
-#line
+#line (where to draw, start coord, end coord, color, thickness)
 cv.line(blank,(0,0),(blank.shape[1]//2,blank.shape[0]//2),(255,250,255),thickness=3)
 cv.line(blank,(0,0),(300,400),(255,250,255),thickness=3) # coord 1 - 2
 cv.imshow('line',blank)
 
-# text on img
+cv.arrowedLine(blank,(0,0),(blank.shape[1]//2,blank.shape[0]//2),(255,250,255),thickness=3)
+
+cv.fillconvexPoly(blank,pts=np.array([[10,5],[20,30],[70,20],[50,10]]),color=(255,255,255)) # fill the polygon with color
+
+# text on img 
 cv.putText(blank,'hello',(255,255),cv.FONT_HERSHEY_COMPLEX,1.0,(255,255,0), 2)
 cv.imshow('text',blank)
 # text payload, init position, font,scale,color,thickness
