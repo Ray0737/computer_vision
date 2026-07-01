@@ -3,9 +3,9 @@ import numpy as np
 img = cv.imread('Code - Computer Vision/test2.png',1)
 def click_position(event, x, y, flags, param):
     if event == cv.EVENT_LBUTTONDOWN:
-        blue = img[x,y,0]
-        green = img[x,y,1]
-        red = img[x,y,2]
+        blue = img[y,x,0]
+        green = img[y,x,1]
+        red = img[y,x,2]
         text = f'({x}, {y}) BGR: ({blue}, {green}, {red})'
         cv.putText(img,text,(x,y),cv.FONT_HERSHEY_SIMPLEX,1,(0,0,255),2)
         cv.imshow('image',img)
