@@ -1,7 +1,7 @@
 import cv2 as cv
 import os
 from datetime import datetime
-from fac2 import NAMES
+from face_recog_train import NAMES
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 XML_PATH = os.path.join(BASE_DIR, 'haarcascade_frontalface_default.xml')
