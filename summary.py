@@ -22,6 +22,7 @@ Grouping in this version:
  11. BITWISE -- AND / OR / XOR / NOT to combine images & masks
  12. GRADIENT EDGES -- Sobel (x / y) and Laplacian edge detection
  13. MOUSE EVENTS -- setMouseCallback to react to clicks / movement
+ 14. FACE DETECTION (Haar Cascade) + MASKING a detected region on video
 
 HOW TO READ THIS FILE:
   - Each command has a `#~ function(...)` block explaining EVERY argument.
@@ -896,3 +897,40 @@ cv.imshow(WINDOW, canvas)                 # window must exist before the callbac
 cv.setMouseCallback(WINDOW, on_mouse)
 cv.waitKey(0)                             # blocks here, dispatching mouse events
 cv.destroyAllWindows()
+
+
+# ============================================================================
+# SECTION 14: FACE DETECTION (Haar Cascade) + MASKING a region on video
+# ============================================================================
+# cv.CascadeClassifier loads a pretrained Haar cascade (an XML file of
+# features) that scans a GRAYSCALE frame for a shape it was trained on
+# (frontal faces here). Combine the detected box with a mask + bitwise_and
+# to isolate (show-only) or hide a region, instead of just drawing a rectangle.
+#
+#~ cv.CascadeClassifier(xml_path).detectMultiScale(gray_img, scaleFactor, minNeighbors)
+#   gray_img     : single-channel image -- cascades are trained on grayscale
+#   scaleFactor  : how much the image is shrunk at each scale step (e.g. 1.3)
+#   minNeighbors : how many overlapping detections are required to keep a hit
+#                  (higher = fewer false positives, may miss real faces)
+#   Returns a list of (x, y, w, h) boxes, one per detected face.
+#
+# --- Pattern: mask instead of just drawing a rectangle ---
+#   1. Build a single-channel BLACK mask the same size as the frame
+#      (np.zeros(frame.shape[:2], dtype=np.uint8))
+#   2. Draw a FILLED shape (cv.ellipse / cv.rectangle, thickness=-1) onto the
+#      mask at each detected face box -> mask is now WHITE where faces are
+#   3. cv.bitwise_and(frame, frame, mask=mask)        -> SHOW ONLY the face(s)
+#      cv.bitwise_and(frame, frame, mask=cv.bitwise_not(mask))  -> HIDE the face(s)
+#
+# Example:
+#   face_cascade = cv.CascadeClassifier('haarcascade_frontalface_default.xml')
+#   gray = cv.cvtColor(frame, cv.COLOR_BGR2GRAY)
+#   faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+#   mask = np.zeros(frame.shape[:2], dtype=np.uint8)
+#   for x, y, w, h in faces:
+#       cv.ellipse(mask, (x + w // 2, y + h // 2), (w // 2, h // 2), 0, 0, 360, 255, -1)
+#   show_only_face = cv.bitwise_and(frame, frame, mask=mask)
+#   hide_face      = cv.bitwise_and(frame, frame, mask=cv.bitwise_not(mask))
+#
+# See runnable versions: facemasking.py (show only face) and
+# face_hide_vid.py (blank out the face, show everything else).

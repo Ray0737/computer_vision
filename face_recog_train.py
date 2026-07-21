@@ -14,7 +14,8 @@ NAMES = {
     2: "thames",
     3: "lew",
     4: "Jun",
-    5: 'Nat'
+    5: 'Nat',
+    6:"Yimwan"
 }
 
 def train_classifier(data_dir):
