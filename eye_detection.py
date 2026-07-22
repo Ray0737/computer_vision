@@ -2,7 +2,7 @@ import cv2 as cv
 
 img = cv.imread("Code - Computer Vision\97941_0.jpg")
 
-xml_path = 'Code - Computer Vision\haarcascade_eye_tree_eyeglasses (1).xml'
+xml_path = 'Code - Computer Vision\haarcascade_eye_tree_eyeglasses.xml'
 eye_cascde = cv.CascadeClassifier(xml_path)
 
 gray_img = cv.cvtColor(img, cv.COLOR_RGB2GRAY)

@@ -11,7 +11,7 @@ def rescaleFrame(frame,scale=0.3):
 
 frame_resized = rescaleFrame(img)
 
-xml_path = 'Code - Computer Vision\haarcascade_frontalface_default (1).xml'
+xml_path = 'Code - Computer Vision\haarcascade_frontalface_default.xml'
 
 # Initialize the Face Cascade Classifier
 face_cascde = cv.CascadeClassifier(xml_path)

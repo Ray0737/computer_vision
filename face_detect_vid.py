@@ -1,7 +1,8 @@
 import cv2 as cv
-
+import os
 cap = cv.VideoCapture(0)
-xml_path ='Code - Computer Vision/haarcascade_frontalface_default (1).xml'
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+xml_path = os.path.join(BASE_DIR, 'haarcascade_frontalface_default.xml')
 face_cascde = cv.CascadeClassifier(xml_path)
 
 while (cap.isOpened()):

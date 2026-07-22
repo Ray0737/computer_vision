@@ -1,7 +1,7 @@
 import cv2 as cv
 import numpy as np
 
-xml_path = 'haarcascade_frontalface_default.xml'
+xml_path = 'Code - Computer Vision\haarcascade_frontalface_default.xml'
 face_cascade = cv.CascadeClassifier(xml_path)
 
 cap = cv.VideoCapture(0)
