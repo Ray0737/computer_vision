@@ -48,6 +48,33 @@ VIDEO_PATH = 'Sequence 01.mp4'
 
 
 # ============================================================================
+# WARNING -- TWO GOTCHAS THAT BITE EVERY OPENCV BEGINNER
+# ============================================================================
+# 1) COORDINATE ORDER: (x,y) vs (row,col) -- NOT the same order!
+#    - NumPy array indexing / slicing  -> img[row, col] = img[y, x]  (y FIRST)
+#      e.g. cropping:  img[y1:y2, x1:x2]
+#    - img.shape                       -> (height, width, channels) = (rows, cols, ch)
+#    - Drawing/geometry functions (cv.rectangle, cv.circle, cv.line,
+#      cv.putText, mouse callback x/y, cv.resize's dsize) ALL take (x, y)
+#      -- x (column/horizontal) FIRST, y (row/vertical) SECOND.
+#    Mixing these up (indexing with x,y or drawing with y,x) is the single
+#    most common OpenCV bug -- see Section 4 for the resize-specific case.
+#
+# 2) COLOR ORDER: OpenCV is BGR, not RGB -- and HSV ranges are NOT 0-360/0-100.
+#    - cv.imread / cv.imshow / all cv.* drawing colors use (B, G, R) order.
+#      Handing a BGR array to matplotlib (which expects RGB) swaps red/blue
+#      (see Section 9) -- always cv.cvtColor(img, cv.COLOR_BGR2RGB) first.
+#    - cv.cvtColor(img, cv.COLOR_BGR2HSV) does NOT give the "usual" HSV
+#      ranges. OpenCV packs it into uint8, so:
+#          H (hue)        : 0-179   (NOT 0-360 -- actual hue halved to fit a byte)
+#          S (saturation) : 0-255   (NOT 0-100)
+#          V (value)      : 0-255   (NOT 0-100)
+#      Color-picking with an external tool (e.g. a 0-360 hue wheel)? Divide
+#      that hue by 2 before using it as an OpenCV H threshold.
+# ============================================================================
+
+
+# ============================================================================
 # SECTION 2: READING & DISPLAYING IMAGES
 # ============================================================================
 #~ cv.imread(path, flag)
